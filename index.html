@@ -1,170 +1,1325 @@
-import React, { useState } from 'react';
-import { station3Data } from '../data';
-import { playSound, initAudio } from '../utils/audio';
-import { CheckCircle, Eye, CloudSun, Mirror, Sparkles, Heart, Skull, Zap, Star } from './Icons';
-import VictoryOverlay from './VictoryOverlay';
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sulfur Vượt Ngàn Chông Gai</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-interface Station3Props {
-    onComplete: () => void;
-    onMistake: (msg: string) => void;
-    onMirrorOutcome?: (outcome: { type: 'life' | 'score', value: number }) => void;
-}
-
-const Station3: React.FC<Station3Props> = ({ onComplete, onMistake, onMirrorOutcome }) => {
-    const [idx, setIdx] = useState(0);
-    const [showRes, setShowRes] = useState(false);
-    const [isCompleted, setIsCompleted] = useState(false);
-    const [showRules, setShowRules] = useState(true);
-    const [viewState, setViewState] = useState<'question' | 'result' | 'mirror' | 'outcome'>('question');
-    const [mirrorResult, setMirrorResult] = useState<{ type: 'life' | 'score', value: number, text: string, icon: any, color: string } | null>(null);
-
-    const handleAns = (val: boolean) => {
-        initAudio();
-        if (viewState !== 'question') return;
-        if (val === station3Data[idx].isTrue) {
-            playSound('correct');
-            setViewState('result');
-        } else {
-            playSound('wrong');
-            onMistake("Câu trả lời chưa chính xác!");
+    <style>
+        @keyframes draw-path {
+          from { stroke-dasharray: 0, 1000; }
+          to { stroke-dasharray: 1000, 0; }
         }
-    };
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-15px); }
+        }
+        @keyframes sway {
+          0%, 100% { transform: rotate(-3deg); }
+          50% { transform: rotate(3deg); }
+        }
+        @keyframes drift {
+          from { transform: translateX(-10%); }
+          to { transform: translateX(110%); }
+        }
+        @keyframes drift-fast {
+          from { transform: translateX(-10%); }
+          to { transform: translateX(110%); }
+        }
+        @keyframes note-float {
+            0% { transform: translateY(0) scale(1) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100px) scale(1.5) rotate(20deg); opacity: 0; }
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.6); }
+        }
+        @keyframes sing {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.5); }
+        }
+        @keyframes heat-distort {
+            0% { transform: scale(1) translateY(0) skewX(0deg); opacity: 0.3; }
+            50% { transform: scale(1.02) translateY(-5px) skewX(1deg); opacity: 0.5; }
+            100% { transform: scale(1) translateY(0) skewX(0deg); opacity: 0.3; }
+        }
+        @keyframes pulse-hot {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+        }
+        @keyframes blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+        @keyframes rotate-rays {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes jump-joy {
+            0%, 100% { transform: translateY(0) scale(1, 1); }
+            50% { transform: translateY(-20px) scale(0.95, 1.05); }
+        }
+        @keyframes wave-hand {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-25deg); }
+            75% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes firefly-float {
+            0% { transform: translate(0, 0); opacity: 0; }
+            25% { opacity: 1; }
+            50% { transform: translate(var(--tx), var(--ty)); opacity: 0.8; }
+            75% { opacity: 1; }
+            100% { transform: translate(0, 0); opacity: 0; }
+        }
 
-    const triggerMirror = () => {
-        setViewState('mirror');
-    };
-
-    const openMirror = () => {
-        initAudio();
-        const rand = Math.random();
-        let result;
+        .animate-spin-slow { animation: spin-slow 10s linear infinite; }
+        .animate-float { animation: float 3s ease-in-out infinite; }
+        .animate-sway { animation: sway 4s ease-in-out infinite; }
+        .animate-drift { animation: drift 30s linear infinite; }
+        .animate-drift-fast { animation: drift-fast 15s linear infinite; }
+        .animate-note-1 { animation: note-float 2s ease-out infinite; }
+        .animate-note-2 { animation: note-float 2.5s ease-out infinite 0.5s; }
+        .animate-note-3 { animation: note-float 3s ease-out infinite 1s; }
+        .animate-twinkle { animation: twinkle 3s ease-in-out infinite; }
+        .animate-sing { animation: sing 0.6s ease-in-out infinite; }
+        .animate-heat-distort { animation: heat-distort 3s ease-in-out infinite; }
+        .animate-pulse-hot { animation: pulse-hot 2s ease-in-out infinite; }
+        .animate-blink { animation: blink 4s infinite; }
+        .animate-rotate-rays { animation: rotate-rays 20s linear infinite; }
+        .animate-jump-joy { animation: jump-joy 1.5s ease-in-out infinite; }
+        .animate-wave-hand { animation: wave-hand 2s ease-in-out infinite; }
+        .animate-firefly { animation: firefly-float 6s ease-in-out infinite; }
         
-        if (rand < 0.25) {
-            result = { type: 'life' as const, value: 1, text: "Chúc mừng! Bạn nhận được +1 Mạng", icon: Heart, color: "text-red-500" };
-            playSound('win');
-        } else if (rand < 0.5) {
-            result = { type: 'life' as const, value: -1, text: "Chia buồn! Bạn bị trừ -1 Mạng", icon: Skull, color: "text-gray-600" };
-            playSound('wrong');
-        } else if (rand < 0.75) {
-            result = { type: 'score' as const, value: 50, text: "Tuyệt vời! +50 Điểm thưởng", icon: Star, color: "text-yellow-500" };
-            playSound('correct');
-        } else {
-            result = { type: 'score' as const, value: -100, text: "Ôi không! Bị trừ -100 Điểm", icon: Zap, color: "text-blue-500" };
-            playSound('wrong');
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
-        setMirrorResult(result);
-        if (onMirrorOutcome) {
-            onMirrorOutcome({ type: result.type, value: result.value });
+        .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+        body {
+            overscroll-behavior-y: contain;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
-        setViewState('outcome');
-    };
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/"
+  }
+}
+</script>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
 
-    const nextQuestion = () => {
-        if (idx < station3Data.length - 1) {
-            setIdx(i => i + 1);
-            setViewState('question');
-            setMirrorResult(null);
-        } else {
-            setIsCompleted(true);
-        }
-    };
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
 
-    if (showRules) {
-        return (
-            <div className="bg-purple-50 h-full flex flex-col items-center justify-center p-4 md:p-6 text-center rounded-[1.5rem] md:rounded-[2rem] border-4 border-purple-100 animate-fade-in z-20 absolute inset-0">
-                <Eye size={64} className="text-purple-400 mb-2 md:mb-4 animate-pulse shrink-0" />
-                <h2 className="text-xl md:text-2xl font-black text-purple-600 mb-2 uppercase">Trạm 3: Đền Tiên</h2>
-                <p className="text-sm font-bold text-purple-400 mb-4 md:mb-6 uppercase tracking-widest">Thời tiết: Sương Mù 🌫️</p>
-                <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-purple-100 mb-6 md:mb-8 text-left max-w-md w-full">
-                    <p className="text-gray-600 mb-2"><b>Luật chơi mới:</b></p>
-                    <ul className="list-disc pl-5 text-sm text-gray-600 space-y-2">
-                        <li>Trả lời đúng câu hỏi để xua tan sương mù.</li>
-                        <li><b>ĐẶC BIỆT:</b> Sau mỗi câu đúng, bạn sẽ mở <b>Gương Thần</b>.</li>
-                        <li>Gương có thể cho bạn thêm mạng/điểm hoặc lấy đi của bạn!</li>
-                    </ul>
-                </div>
-                <button onClick={() => { initAudio(); setShowRules(false); }} className="w-full md:w-auto px-8 py-3 bg-purple-500 text-white rounded-xl font-black shadow-[0_4px_0_#7e22ce] active:shadow-none active:translate-y-[4px] transition-all active:scale-95">ĐÃ HIỂU, GIẢI MÃ!</button>
+        // --- DATA ---
+        const station1Data = [
+            { id: 1, left: "Thành phần chính của quặng pyrite là", right: "FeS2" },
+            { id: 2, left: "Ở điều kiện thường, phân tử Sulfur có", right: "8 nguyên tử (S8)" },
+            { id: 3, left: "Sulfur thể hiện tính OXI HÓA khi gặp", right: "Kim loại và Hydrogen" },
+            { id: 4, left: "Sulfur thể hiện tính KHỬ khi gặp", right: "Phi kim mạnh (O2, F2...)" },
+            { id: 5, left: "Sulfur tan nhiều trong dung môi", right: "Benzene, Carbon disulfide (CS2)" }
+        ];
+
+        const station2Data = [
+            { lock: "S + Fe (t°)", key: "FeS" },
+            { lock: "S + Al (t°)", key: "Al2S3" },
+            { lock: "S + H2 (t°)", key: "H2S" },
+            { lock: "S + O2 (t°)", key: "SO2" },
+            { lock: "S + F2", key: "SF6" }
+        ];
+
+        const station3Data = [
+            { id: 1, statement: "Phân tử Sulfur S8 có cấu tạo mạch hở.", isTrue: false, explanation: "Sai. S8 có cấu tạo VÒNG khép kín (hình vương miện)." },
+            { id: 2, statement: "Ở điều kiện thường, Sulfur là chất rắn màu vàng.", isTrue: true, explanation: "Đúng. Đây là trạng thái vật lý đặc trưng." },
+            { id: 3, statement: "Sulfur đơn chất vừa có tính oxi hóa, vừa có tính khử.", isTrue: true, explanation: "Đúng. Số oxi hóa của S là 0 (trung gian)." },
+            { id: 4, statement: "Dùng bột Sulfur để xử lý thủy ngân (Hg) rơi vãi.", isTrue: true, explanation: "Đúng. Hg + S -> HgS xảy ra ở nhiệt độ thường." },
+            { id: 5, statement: "Sulfur cháy trong O2 với ngọn lửa màu đỏ rực.", isTrue: false, explanation: "Sai. Sulfur cháy với ngọn lửa màu XANH NHẠT." }
+        ];
+
+        const goodItems = ["Fe", "Al", "Zn", "Mg", "H2", "O2", "F2", "Cl2"];
+        const badItems = ["Au", "Pt", "H2O", "He", "Ne", "Ag"];
+
+        // --- AUDIO UTILS ---
+        let audioCtx = null;
+
+        const initAudio = () => {
+            if (typeof window !== 'undefined' && !audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) {
+                    audioCtx = new AudioContext();
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(e => console.log("Audio resume failed", e));
+            }
+        };
+
+        const playSound = (type) => {
+            if (!audioCtx) initAudio();
+            if (!audioCtx) return;
+
+            try {
+                const osc = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                osc.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(600, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                    gainNode.gain.setValueAtTime(0.3, now);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+                    osc.start(now);
+                    osc.stop(now + 0.5);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(100, now + 0.3);
+                    gainNode.gain.setValueAtTime(0.3, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'jump') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.linearRampToValueAtTime(500, now + 0.1);
+                    gainNode.gain.setValueAtTime(0.2, now);
+                    gainNode.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                    osc.start(now);
+                    osc.stop(now + 0.15);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50]; 
+                    notes.forEach((freq, i) => {
+                        const osc2 = audioCtx.createOscillator();
+                        const gain2 = audioCtx.createGain();
+                        osc2.connect(gain2);
+                        gain2.connect(audioCtx.destination);
+                        const time = now + i * 0.15;
+                        osc2.type = 'square';
+                        osc2.frequency.value = freq;
+                        gain2.gain.setValueAtTime(0.1, time);
+                        gain2.gain.exponentialRampToValueAtTime(0.001, time + 0.4);
+                        osc2.start(time);
+                        osc2.stop(time + 0.4);
+                    });
+                }
+            } catch (e) {
+                console.error("Audio playback error", e);
+            }
+        };
+
+        // --- ICONS ---
+        const IconWrapper = ({ children, size = 24, className = "", ...props }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} {...props}>{children}</svg>
+        );
+
+        const Play = (props) => <IconWrapper {...props}><polygon points="5 3 19 12 5 21 5 3"/></IconWrapper>;
+        const Heart = (props) => <IconWrapper {...props}><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></IconWrapper>;
+        const Skull = (props) => <IconWrapper {...props}><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><path d="M8 20v2h8v-2"/><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20"/></IconWrapper>;
+        const Key = (props) => <IconWrapper {...props}><circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/></IconWrapper>;
+        const Shield = (props) => <IconWrapper {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></IconWrapper>;
+        const Wind = (props) => <IconWrapper {...props}><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></IconWrapper>;
+        const TreePine = (props) => <IconWrapper {...props}><path d="m17 14 3 3.3a1 1 0 0 1-.7 1.7H4.7a1 1 0 0 1-.7-1.7L7 14h-.3a1 1 0 0 1-.7-1.7L9 8.5 6 9a1 1 0 0 1-.7-1.7l5-5.5a1 1 0 0 1 1.4 0l5 5.5a1 1 0 0 1-.7 1.7L15 8.5l3 3.8a1 1 0 0 1-.7 1.7H17Z"/><path d="M12 22v-3"/></IconWrapper>;
+        const MapIcon = (props) => <IconWrapper {...props}><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></IconWrapper>;
+        const Footprints = (props) => <IconWrapper {...props}><path d="M4 16v-2.38C4 11.5 2.97 10.5 3 8c.03-2.72 1.49-6 4.5-6C9.37 2 11 3.8 11 8c0 1.25-1 2-1 2.5 0 1.11 1.41 1.56 1.41 3.71 0 1.91-1.41 2.5-1.41 3.79 0 1.53 2 1.53 2 3.29 0 2.2-2.21 2.71-4 2.71-2.79 0-4-1.83-4-5.29Z"/><path d="M10 22v-2.38c0-2.12 1.03-3.12 1-5.62-.03-2.72-1.49-6-4.5-6C4.63 8 3 9.8 3 14c0 1.25 1 2 1 2.5 0 1.11-1.41 1.56-1.41 3.71 0 1.91 1.41 2.5 1.41 3.79 0 1.53-2 1.53-2 3.29 0 2.2 2.21 2.71 4 2.71 2.79 0 4-1.83 4-5.29Z"/></IconWrapper>;
+        const Lock = (props) => <IconWrapper {...props}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></IconWrapper>;
+        const CheckCircle = (props) => <IconWrapper {...props}><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></IconWrapper>;
+        const Zap = (props) => <IconWrapper {...props}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></IconWrapper>;
+        const AlertTriangle = (props) => <IconWrapper {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></IconWrapper>;
+        const Star = (props) => <IconWrapper {...props}><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></IconWrapper>;
+        const Mountain = (props) => <IconWrapper {...props}><path d="m8 3 4 8 5-5 5 15H2L8 3z"/></IconWrapper>;
+        const ArrowRight = (props) => <IconWrapper {...props}><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></IconWrapper>;
+        const Scroll = (props) => <IconWrapper {...props}><path d="M8 17.92V10.5a2.5 2.5 0 0 1 5 0v7.42a3.5 3.5 0 0 1-1 6.58 3.5 3.5 0 0 1-4-3.08Z"/><path d="M8 2.5v7.42a3.5 3.5 0 0 0 1 6.58 3.5 3.5 0 0 0 4-3.08V10.5a2.5 2.5 0 0 0-5 0Z"/><path d="M19 10v11a3.5 3.5 0 0 1-3.5-3.5v-9M5 18v3.5A3.5 3.5 0 0 0 8.5 25h.5"/></IconWrapper>;
+        const FlaskConical = (props) => <IconWrapper {...props}><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></IconWrapper>;
+        const Eye = (props) => <IconWrapper {...props}><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></IconWrapper>;
+        const Compass = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></IconWrapper>;
+        const MapPin = (props) => <IconWrapper {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></IconWrapper>;
+        const Tent = (props) => <IconWrapper {...props}><path d="M19 20 10 4 1 20"/><path d="m12.8 14.2-2.8-4.2-3.8 10H19"/><path d="M2 20h10"/><path d="m22 20-3-7"/></IconWrapper>;
+        const CloudSun = (props) => <IconWrapper {...props}><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M20 12h2"/><path d="m19.07 4.93-1.41 1.41"/><path d="M15.947 12.65a4 4 0 0 0-5.925-4.128"/><path d="M13 22H7a5 5 0 1 1 4.9-6H13a3 3 0 0 1 0 6Z"/></IconWrapper>;
+        const Smartphone = (props) => <IconWrapper {...props}><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></IconWrapper>;
+        const Music = (props) => <IconWrapper {...props}><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></IconWrapper>;
+        const Flower = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="3"/><path d="M12 16.5A4.5 4.5 0 1 1 7.5 12 4.5 4.5 0 1 1 12 7.5a4.5 4.5 0 1 1 4.5 4.5 4.5 4.5 0 1 1-4.5 4.5"/><path d="M12 7.5V9"/><path d="M7.5 12H9"/><path d="M16.5 12H15"/><path d="M12 16.5V15"/><path d="M8 8l1.5 1.5"/><path d="M14.5 9.5L16 8"/><path d="M16 16l-1.5-1.5"/><path d="M9.5 14.5L8 16"/></IconWrapper>;
+        const Butterfly = (props) => <IconWrapper {...props}><path d="M12 12c0-3 2.5-5 4-5s4 1 5 3-2 5-5 4c0 3 2 5 4 5s4-1 4-3"/><path d="M12 12c0-3-2.5-5-4-5S4 8 3 10s2 5 5 4c0 3-2 5-4 5s-4-1-4-3"/><line x1="12" x2="12" y1="2" y2="22"/></IconWrapper>;
+        const Sparkles = (props) => <IconWrapper {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L12 3Z"/></IconWrapper>;
+        const Sun = (props) => <IconWrapper {...props}><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></IconWrapper>;
+        const CloudRain = (props) => <IconWrapper {...props}><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 14v6"/><path d="M8 14v6"/><path d="M12 16v6"/></IconWrapper>;
+        const CloudFog = (props) => <IconWrapper {...props}><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M16 17H7"/><path d="M17 21H9"/></IconWrapper>;
+        const Thermometer = (props) => <IconWrapper {...props}><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"/></IconWrapper>;
+        const Mirror = (props) => <IconWrapper {...props}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><path d="M12 6a4 4 0 0 0-4 4"/></IconWrapper>;
+
+        // --- COMPONENTS ---
+
+        const LifeBar = ({ lives }) => (
+            <div className="flex gap-1 animate-pulse bg-white/90 px-2 py-1 md:px-4 md:py-2 rounded-full border-b-4 border-gray-200 shadow-sm">
+                {[...Array(Math.max(3, lives))].map((_, i) => (
+                <Heart 
+                    key={i} 
+                    size={20} 
+                    className={`${i < lives ? 'text-red-500 fill-red-500 drop-shadow-sm' : 'text-gray-300 fill-gray-200'}`} 
+                />
+                ))}
             </div>
         );
-    }
 
-    return (
-        <div className="bg-purple-50 h-full flex flex-col items-center justify-center p-4 md:p-6 relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border-4 border-white shadow-lg">
-            {isCompleted && <VictoryOverlay onNext={onComplete} message="Kiến thức vững vàng!" />}
-            
-            <div className="w-full max-w-2xl text-center space-y-4 md:space-y-6 relative z-10 flex flex-col h-full justify-center">
+        const VictoryOverlay = ({ onNext, message = "Thử thách hoàn thành!" }) => {
+            useEffect(() => { playSound('win'); }, []);
+            return (
+                <div className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm animate-in fade-in zoom-in duration-300 p-4">
+                <div className="bg-yellow-50 p-6 md:p-8 rounded-[2rem] border-4 border-yellow-400 text-center shadow-[0_15px_0_rgba(250,204,21,1)] w-full max-w-sm">
+                    <Star size={64} className="mx-auto mb-4 text-yellow-400 animate-spin-slow drop-shadow-md fill-yellow-200" />
+                    <h3 className="text-2xl md:text-3xl font-black text-yellow-600 mb-2 uppercase tracking-wide">Tuyệt Vời!</h3>
+                    <p className="text-stone-600 mb-8 font-bold text-sm md:text-base">{message}</p>
+                    <button 
+                    onClick={onNext}
+                    onTouchStart={initAudio}
+                    className="group w-full py-3 md:py-4 bg-green-500 hover:bg-green-600 text-white rounded-2xl font-black text-lg md:text-xl shadow-[0_6px_0_#15803d] active:shadow-none active:translate-y-[6px] transition-all flex items-center justify-center gap-2 touch-manipulation"
+                    >
+                    TIẾP TỤC <ArrowRight size={24} strokeWidth={4}/>
+                    </button>
+                </div>
+                </div>
+            );
+        };
+
+        const GameMap = ({ currentStation, completedStations, onSelectStation }) => {
+            const stations = [
+                { id: 1, x: 20, y: 70, title: "Di Tích Cổ", icon: Scroll, color: "bg-gradient-to-br from-orange-500 to-red-500", text: "text-orange-700" },
+                { id: 2, x: 45, y: 50, title: "Hầm Ngục", icon: Shield, color: "bg-gradient-to-br from-teal-400 to-teal-600", text: "text-teal-700" },
+                { id: 3, x: 80, y: 40, title: "Đền Tiên", icon: Eye, color: "bg-gradient-to-br from-purple-400 to-purple-600", text: "text-purple-700" },
+                { id: 4, x: 60, y: 15, title: "Rừng Sâu", icon: TreePine, color: "bg-gradient-to-br from-green-500 to-green-700", text: "text-green-800" }
+            ];
+
+            const activeStation = stations.find(s => s.id === currentStation);
+
+            return (
+                <div className="relative w-full h-full max-h-[65vh] aspect-[4/3] md:aspect-[16/9] bg-emerald-200 rounded-2xl md:rounded-3xl overflow-hidden border-4 md:border-8 border-[#6ee7b7] shadow-2xl flex flex-col group">
                 
-                {viewState !== 'mirror' && viewState !== 'outcome' && (
-                    <>
-                        {/* Question Card */}
-                        <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border-b-8 border-purple-100 shadow-md transform transition-all hover:scale-[1.01]">
-                            <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
-                                <h3 className="text-purple-400 text-[10px] md:text-sm font-black uppercase tracking-widest">Câu hỏi {idx + 1}/{station3Data.length}</h3>
-                                <div className="flex gap-1">
-                                    {station3Data.map((_, i) => (
-                                        <div key={i} className={`w-2 h-2 rounded-full ${i < idx ? 'bg-green-400' : i === idx ? 'bg-purple-400 animate-pulse' : 'bg-gray-200'}`}></div>
+                {/* --- Vivid Background Layers --- */}
+                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] opacity-40 mix-blend-overlay"></div>
+                
+                {/* Sky & Clouds */}
+                <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-sky-300 to-transparent opacity-80"></div>
+                <div className="absolute top-5 left-10 animate-drift opacity-80 scale-75 md:scale-100"><CloudSun size={80} className="text-white fill-yellow-200" /></div>
+                <div className="absolute top-10 right-20 animate-drift-fast opacity-60 scale-75 md:scale-100"><CloudSun size={50} className="text-white" /></div>
+                
+                {/* Terrain Details */}
+                <div className="absolute top-20 left-10 opacity-40 text-emerald-600 scale-50 md:scale-100 animate-sway origin-bottom"><TreePine size={120} fill="currentColor"/></div>
+                <div className="absolute bottom-20 right-10 opacity-40 text-emerald-600 scale-50 md:scale-100 animate-sway origin-bottom"><TreePine size={100} fill="currentColor"/></div>
+                <div className="absolute top-1/4 left-1/3 opacity-20 text-emerald-700 scale-75 md:scale-100"><Mountain size={200} fill="currentColor"/></div>
+                <div className="absolute bottom-10 left-20 scale-50 md:scale-100"><Tent size={48} className="text-orange-500 fill-orange-200 drop-shadow-md" /></div>
+                <div className="absolute top-1/3 right-1/4 animate-float scale-75 md:scale-100"><Butterfly size={32} className="text-pink-400 fill-pink-200" /></div>
+
+                {/* Map Title Widget */}
+                <div className="absolute top-2 left-2 md:top-4 md:left-4 glass-panel px-3 py-1 md:px-4 md:py-2 rounded-full flex items-center gap-2 z-10 shadow-lg border border-white/60">
+                        <Compass size={20} className="text-emerald-600 animate-spin-slow md:w-6 md:h-6" />
+                        <span className="font-black text-emerald-800 uppercase tracking-widest text-[10px] md:text-sm">Bản Đồ Mê Cung</span>
+                </div>
+
+                {/* SVG Path (Winding Road) */}
+                <svg className="absolute inset-0 w-full h-full pointer-events-none z-0 filter drop-shadow-md">
+                    <path d="M 20% 70% Q 30% 80% 45% 50% T 80% 40% Q 90% 25% 60% 15%" stroke="#fcd34d" strokeWidth="14" fill="none" strokeLinecap="round" className="opacity-90 md:stroke-[24]"/>
+                    <path d="M 20% 70% Q 30% 80% 45% 50% T 80% 40% Q 90% 25% 60% 15%" stroke="#fff" strokeWidth="2" strokeDasharray="12 12" fill="none" strokeLinecap="round" className="opacity-60 md:stroke-4"/>
+                    {completedStations.includes(1) && <path d="M 20% 70% Q 30% 80% 45% 50%" stroke="#ea580c" strokeWidth="2" strokeDasharray="5 12" fill="none" className="animate-draw-path md:stroke-4"/>}
+                    {completedStations.includes(2) && <path d="M 45% 50% Q 60% 20% 80% 40%" stroke="#ea580c" strokeWidth="2" strokeDasharray="5 12" fill="none" className="animate-draw-path md:stroke-4"/>}
+                    {completedStations.includes(3) && <path d="M 80% 40% Q 90% 25% 60% 15%" stroke="#ea580c" strokeWidth="2" strokeDasharray="5 12" fill="none" className="animate-draw-path md:stroke-4"/>}
+                </svg>
+
+                {/* Stations Nodes */}
+                {stations.map((s) => {
+                    const isUnlocked = s.id === currentStation;
+                    const isCompleted = completedStations.includes(s.id);
+                    const isLocked = !isUnlocked && !isCompleted;
+                    const Icon = s.icon;
+
+                    return (
+                    <div key={s.id} className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10 flex flex-col items-center group/node touch-manipulation" style={{ left: `${s.x}%`, top: `${s.y}%` }}>
+                        <button 
+                            onClick={() => !isLocked && onSelectStation(s.id)}
+                            onTouchStart={initAudio}
+                            className={`relative w-14 h-14 md:w-24 md:h-24 rounded-2xl md:rounded-3xl flex items-center justify-center transition-all duration-300 ${isLocked ? 'bg-gray-200 cursor-not-allowed grayscale opacity-80' : `hover:scale-110 active:scale-95 ${s.color} shadow-[0_8px_20px_rgba(0,0,0,0.3)] ring-2 md:ring-4 ring-white/50`}`}
+                        >
+                            <div className="bg-white/20 w-9 h-9 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                                {isCompleted ? <CheckCircle size={24} className="text-white drop-shadow-md md:w-10 md:h-10" strokeWidth={3}/> : 
+                                isLocked ? <Lock size={20} className="text-gray-400 md:w-8 md:h-8" /> : 
+                                <Icon size={24} className="text-white drop-shadow-md md:w-10 md:h-10" />}
+                            </div>
+                            {isUnlocked && !isCompleted && (
+                                 <div className="absolute inset-0 rounded-2xl md:rounded-3xl ring-2 md:ring-4 ring-yellow-400 animate-pulse"></div>
+                            )}
+                            {isCompleted && (<div className="absolute -top-2 -right-2 md:-top-3 md:-right-3"><Star className="text-yellow-400 fill-yellow-300 drop-shadow-sm animate-bounce w-5 h-5 md:w-8 md:h-8" /></div>)}
+                        </button>
+                        <div className={`mt-1 md:mt-3 px-2 py-0.5 md:px-3 md:py-1 rounded-lg md:rounded-xl font-black text-[9px] md:text-sm uppercase tracking-wide border shadow-md whitespace-nowrap transition-transform group-hover/node:-translate-y-1 ${isLocked ? 'bg-gray-100 text-gray-400 border-gray-200' : 'bg-white ' + s.text + ' border-white'}`}>
+                            {s.title}
+                        </div>
+                    </div>
+                    )
+                })}
+
+                {/* Floating Action Button (Call to Action) */}
+                {activeStation && !completedStations.includes(activeStation.id) && (
+                    <div className="absolute bottom-4 md:bottom-6 left-1/2 transform -translate-x-1/2 z-20 w-full max-w-[90%] md:max-w-sm animate-float">
+                        <button onClick={() => onSelectStation(activeStation.id)} onTouchStart={initAudio} className="w-full bg-white border-4 border-yellow-400 rounded-full p-1 shadow-[0_10px_20px_rgba(250,204,21,0.4)] active:scale-95 transition-transform hover:scale-105 touch-manipulation">
+                            <div className="bg-yellow-50 rounded-full px-4 py-2 md:px-6 md:py-3 flex items-center justify-between">
+                                <div className="flex items-center gap-3 md:gap-4">
+                                    <div className={`p-2 md:p-3 rounded-full ${activeStation.color} text-white shadow-md`}><MapPin size={18} className="md:w-6 md:h-6" fill="currentColor"/></div>
+                                    <div className="text-left">
+                                        <p className="text-[9px] md:text-[10px] text-yellow-600 font-black uppercase tracking-widest">ĐIỂM ĐẾN TIẾP THEO</p>
+                                        <p className="text-gray-800 font-black text-sm md:text-xl">TRẠM {activeStation.id}</p>
+                                    </div>
+                                </div>
+                                <div className="bg-white p-1.5 md:p-2 rounded-full text-yellow-500 shadow-sm"><ArrowRight size={20} className="md:w-6 md:h-6" strokeWidth={3} /></div>
+                            </div>
+                        </button>
+                    </div>
+                )}
+                </div>
+            );
+        };
+
+        const Station1 = ({ onComplete, onMistake }) => {
+            const [lefts, setLefts] = useState([]);
+            const [rights, setRights] = useState([]);
+            const [selectedLeft, setSelectedLeft] = useState(null);
+            const [solvedIds, setSolvedIds] = useState([]);
+            const [isCompleted, setIsCompleted] = useState(false);
+            const [showRules, setShowRules] = useState(true);
+
+            useEffect(() => {
+                setLefts([...station1Data].sort(() => Math.random() - 0.5));
+                setRights([...station1Data].sort(() => Math.random() - 0.5));
+            }, []);
+
+            const handleMatch = (item, type) => {
+                initAudio(); 
+                if (type === 'left') {
+                    if (solvedIds.includes(item.id)) return;
+                    playSound('correct');
+                    setSelectedLeft(item);
+                } else {
+                    if (!selectedLeft || solvedIds.includes(item.id)) return;
+                    if (selectedLeft.id === item.id) {
+                        playSound('correct');
+                        const newSolved = [...solvedIds, item.id];
+                        setSolvedIds(newSolved);
+                        setSelectedLeft(null);
+                        if (newSolved.length === station1Data.length) setTimeout(() => setIsCompleted(true), 500);
+                    } else {
+                        playSound('wrong');
+                        onMistake("Mảnh ghép không tương thích!");
+                        setSelectedLeft(null);
+                    }
+                }
+            };
+
+            if (showRules) {
+                return (
+                    <div className="bg-gradient-to-b from-amber-100 to-orange-100 h-full flex flex-col items-center justify-center p-4 md:p-6 text-center animate-fade-in overflow-y-auto z-20 absolute inset-0">
+                        <div className="relative shrink-0">
+                            <div className="absolute inset-0 bg-orange-400 blur-2xl opacity-30 rounded-full animate-pulse"></div>
+                            <Sun size={60} className="text-orange-500 mb-4 relative z-10 animate-spin-slow md:w-20 md:h-20" />
+                        </div>
+                        <h2 className="text-xl md:text-3xl font-black text-orange-700 mb-2 uppercase drop-shadow-sm shrink-0">Trạm 1: Di Tích Cổ</h2>
+                        <div className="inline-flex items-center gap-2 bg-orange-200/50 px-4 py-1 rounded-full text-orange-800 font-bold text-xs md:text-sm mb-4 border border-orange-300 shrink-0">
+                            <Thermometer size={16}/> <span>Nắng Gắt 40°C</span>
+                        </div>
+                        
+                        <div className="bg-white/90 p-4 md:p-6 rounded-2xl shadow-lg border-l-4 border-orange-500 mb-6 text-left max-w-md w-full overflow-y-auto max-h-[40vh]">
+                            <p className="text-orange-900 font-bold mb-3 text-sm md:text-lg">Luật chơi:</p>
+                            <ul className="space-y-3 text-gray-700 text-xs md:text-base">
+                                <li className="flex items-start gap-2">
+                                    <span className="bg-orange-200 text-orange-700 font-bold w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] md:text-xs">1</span>
+                                    <span>Các văn tự cổ về Sulfur đã bị vỡ.</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="bg-orange-200 text-orange-700 font-bold w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] md:text-xs">2</span>
+                                    <span>Chọn mảnh <b className="text-orange-600">Câu hỏi</b> ở cột trái.</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                    <span className="bg-orange-200 text-orange-700 font-bold w-5 h-5 md:w-6 md:h-6 rounded-full flex items-center justify-center shrink-0 text-[10px] md:text-xs">3</span>
+                                    <span>Ghép với mảnh <b className="text-orange-600">Đáp án</b> ở cột phải.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <button 
+                            onClick={() => { initAudio(); setShowRules(false); }} 
+                            className="w-full md:w-auto px-8 py-3 md:px-10 md:py-4 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white rounded-xl font-black text-base md:text-lg shadow-[0_4px_0_#c2410c] active:shadow-none active:translate-y-[4px] transition-all shrink-0 active:scale-95 uppercase tracking-wider"
+                        >
+                            Bắt Đầu
+                        </button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="h-full flex flex-col relative bg-gradient-to-b from-amber-200 to-orange-100">
+                    {/* Background Scenery */}
+                    <div className="absolute top-[-10%] right-[-10%] text-yellow-400/40 animate-spin-slow pointer-events-none">
+                        <Sun size={200} />
+                    </div>
+                    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-orange-300/30 to-transparent pointer-events-none"></div>
+                    {/* Heat Haze Overlay */}
+                    <div className="absolute inset-0 backdrop-blur-[1px] animate-heat-distort pointer-events-none opacity-30"></div>
+
+                    {isCompleted && <VictoryOverlay onNext={onComplete} message="Ghép nối hoàn tất!" />}
+                    
+                    {/* Header Status - Fixed at top */}
+                    <div className="text-center py-2 flex justify-center items-center gap-2 shrink-0 z-10 relative bg-white/20 backdrop-blur-sm">
+                        <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-white/80 text-orange-700 text-xs font-black border-2 border-orange-200 shadow-sm uppercase tracking-wide">
+                            <Scroll size={14} className="text-orange-500"/> 
+                            <span>Ghép {solvedIds.length}/{station1Data.length}</span>
+                        </div>
+                    </div>
+
+                    {/* Game Area - Scrollable */}
+                    <div className="flex-grow overflow-y-auto p-2 md:p-4 z-10">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-safe">
+                            {/* Questions Column */}
+                            <div className="flex flex-col gap-2">
+                                <div className="bg-orange-200/90 text-orange-900 p-2 rounded-lg text-center text-xs font-black uppercase sticky top-0 z-20 shadow-sm backdrop-blur-md">
+                                    Câu Hỏi
+                                </div>
+                                <div className="space-y-2">
+                                    {lefts.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleMatch(item, 'left')} 
+                                            onTouchStart={initAudio} 
+                                            className={`
+                                                relative p-3 rounded-xl border-b-4 cursor-pointer transition-all duration-200 text-xs md:text-sm font-bold touch-manipulation min-h-[60px] flex items-center shadow-sm group active:scale-95
+                                                ${solvedIds.includes(item.id) 
+                                                    ? 'bg-emerald-100 border-emerald-300 text-emerald-800 opacity-60' 
+                                                    : selectedLeft?.id === item.id 
+                                                        ? 'bg-orange-500 border-orange-700 text-white shadow-md z-10' 
+                                                        : 'bg-white border-orange-100 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+                                                }
+                                            `}
+                                        >
+                                            {solvedIds.includes(item.id) && <CheckCircle size={16} className="absolute top-2 right-2 text-emerald-600" />}
+                                            {item.left}
+                                        </div>
                                     ))}
                                 </div>
                             </div>
-                            <p className="text-lg md:text-2xl font-bold text-gray-700 leading-relaxed min-h-[80px] flex items-center justify-center">
-                                "{station3Data[idx].statement}"
-                            </p>
-                        </div>
 
-                        {/* Answer Buttons */}
-                        {viewState === 'question' ? (
-                            <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-6 w-full">
-                                <button onClick={() => handleAns(true)} onTouchStart={initAudio} className="flex-1 md:flex-none py-4 md:px-16 bg-green-500 text-white rounded-2xl font-black text-xl shadow-[0_6px_0_#15803d] active:shadow-none active:translate-y-[6px] transition-all touch-manipulation hover:bg-green-600 active:scale-95">
-                                    ĐÚNG
-                                </button>
-                                <button onClick={() => handleAns(false)} onTouchStart={initAudio} className="flex-1 md:flex-none py-4 md:px-16 bg-red-500 text-white rounded-2xl font-black text-xl shadow-[0_6px_0_#b91c1c] active:shadow-none active:translate-y-[6px] transition-all touch-manipulation hover:bg-red-600 active:scale-95">
-                                    SAI
-                                </button>
+                            {/* Answers Column */}
+                            <div className="flex flex-col gap-2 mt-2 md:mt-0">
+                                <div className="bg-orange-200/90 text-orange-900 p-2 rounded-lg text-center text-xs font-black uppercase sticky top-0 z-20 shadow-sm backdrop-blur-md">
+                                    Đáp Án
+                                </div>
+                                <div className="space-y-2">
+                                    {rights.map(item => (
+                                        <div 
+                                            key={item.id} 
+                                            onClick={() => handleMatch(item, 'right')} 
+                                            onTouchStart={initAudio} 
+                                            className={`
+                                                relative p-3 rounded-xl border-b-4 text-right cursor-pointer transition-all duration-200 text-xs md:text-sm font-bold flex items-center justify-end touch-manipulation min-h-[60px] shadow-sm active:scale-95
+                                                ${solvedIds.includes(item.id) 
+                                                    ? 'bg-emerald-100 border-emerald-300 text-emerald-800 opacity-60' 
+                                                    : 'bg-white border-orange-100 text-gray-700 hover:border-orange-300 hover:bg-orange-50'
+                                                }
+                                            `}
+                                        >
+                                            {solvedIds.includes(item.id) && <CheckCircle size={16} className="absolute top-2 left-2 text-emerald-600" />}
+                                            {item.right}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        ) : (
-                            <div className="bg-green-100 p-4 md:p-6 rounded-2xl text-left shadow-inner border-2 border-green-200 animate-in slide-in-from-bottom-4 w-full">
-                                <p className="text-green-700 font-bold mb-2 flex items-center gap-2 text-lg"><CheckCircle size={24}/> Chính xác!</p>
-                                <p className="text-green-800 mb-6 text-sm md:text-lg">{station3Data[idx].explanation}</p>
-                                <button onClick={triggerMirror} onTouchStart={initAudio} className="w-full py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-lg rounded-xl shadow-md active:scale-95 transition-transform touch-manipulation flex items-center justify-center gap-2">
-                                    <Sparkles className="animate-spin-slow"/> MỞ GƯƠNG THẦN <Sparkles className="animate-spin-slow"/>
-                                </button>
-                            </div>
-                        )}
-                    </>
-                )}
-
-                {/* Mirror Interface */}
-                {viewState === 'mirror' && (
-                     <div className="flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                        <h3 className="text-xl font-black text-purple-600 mb-6 uppercase tracking-widest animate-pulse">Gương Thần Đang Chờ...</h3>
-                        <div className="relative group cursor-pointer" onClick={openMirror}>
-                             <div className="absolute inset-0 bg-cyan-400 blur-2xl opacity-40 rounded-full animate-pulse group-hover:opacity-60 transition-opacity"></div>
-                             <div className="relative w-48 h-64 md:w-60 md:h-80 bg-gradient-to-b from-sky-200 to-white rounded-[4rem] border-8 border-purple-300 shadow-2xl flex items-center justify-center overflow-hidden">
-                                <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dust.png')] opacity-30"></div>
-                                <div className="w-full h-full bg-gradient-to-tr from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-drift"></div>
-                                <Mirror size={80} className="text-purple-400 opacity-50 group-hover:scale-110 transition-transform duration-500" />
-                                <p className="absolute bottom-10 text-purple-500 font-bold text-sm animate-bounce">CHẠM ĐỂ MỞ</p>
-                             </div>
-                        </div>
-                     </div>
-                )}
-
-                {/* Mirror Outcome */}
-                {viewState === 'outcome' && mirrorResult && (
-                    <div className="flex flex-col items-center justify-center animate-in zoom-in duration-300">
-                        <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-4 border-purple-100 max-w-sm w-full text-center">
-                            <mirrorResult.icon size={64} className={`mx-auto mb-4 ${mirrorResult.color} animate-bounce drop-shadow-md`} />
-                            <h3 className={`text-2xl font-black mb-4 ${mirrorResult.color}`}>{mirrorResult.text}</h3>
-                            <button onClick={nextQuestion} onTouchStart={initAudio} className="w-full py-4 bg-gray-800 text-white font-black text-lg rounded-xl shadow-lg active:scale-95 transition-transform">
-                                TIẾP TỤC
-                            </button>
                         </div>
                     </div>
-                )}
-            </div>
-        </div>
-    );
-};
+                </div>
+            );
+        };
 
-export default Station3;
+        const Station2 = ({ onComplete, onMistake }) => {
+            const [locks] = useState([...station2Data]);
+            const [keys, setKeys] = useState([]);
+            const [selectedKey, setSelectedKey] = useState(null);
+            const [matched, setMatched] = useState([]);
+            const [isCompleted, setIsCompleted] = useState(false);
+            const [showRules, setShowRules] = useState(true);
+
+            useEffect(() => setKeys([...station2Data].sort(() => Math.random() - 0.5)), []);
+
+            const handleLock = (l) => {
+                initAudio();
+                if (!selectedKey || matched.includes(l.key)) return;
+                if (selectedKey.key === l.key) {
+                    playSound('correct');
+                    const newMatched = [...matched, l.key];
+                    setMatched(newMatched);
+                    setSelectedKey(null);
+                    if (newMatched.length === station2Data.length) setTimeout(() => setIsCompleted(true), 500);
+                } else {
+                    playSound('wrong');
+                    onMistake("Chìa không đúng ổ!");
+                    setSelectedKey(null);
+                }
+            };
+
+            if (showRules) {
+                return (
+                    <div className="bg-teal-50 h-full flex flex-col items-center justify-center p-4 md:p-6 text-center animate-fade-in overflow-y-auto z-20 absolute inset-0">
+                        <Shield size={64} className="text-teal-500 mb-2 md:mb-4 animate-bounce shrink-0" />
+                        <h2 className="text-xl md:text-2xl font-black text-teal-700 mb-2 uppercase shrink-0">Trạm 2: Hầm Ngục</h2>
+                        <p className="text-sm font-bold text-teal-500 mb-4 md:mb-6 uppercase tracking-widest flex items-center justify-center gap-2 shrink-0"><CloudRain size={16}/> Đầm Lầy Ẩm Ướt 🌧️</p>
+                        <div className="bg-white/90 p-4 rounded-2xl shadow-sm border-2 border-teal-100 mb-6 md:mb-8 text-left max-w-md w-full overflow-y-auto max-h-[40vh]">
+                            <p className="text-gray-600 mb-2 text-sm md:text-base"><b>Luật chơi:</b></p>
+                            <ul className="list-disc pl-5 text-xs md:text-sm text-gray-600 space-y-2">
+                                <li>Cửa hầm ngục bị khóa bởi các phản ứng hóa học.</li>
+                                <li>Chọn 1 <b>CHÌA KHÓA</b> (Sản phẩm) ở dưới đáy màn hình.</li>
+                                <li>Bấm vào <b>Ổ KHÓA</b> (Phản ứng) tương ứng ở trên để mở.</li>
+                            </ul>
+                        </div>
+                        <button onClick={() => { initAudio(); setShowRules(false); }} className="w-full md:w-auto px-8 py-3 bg-teal-600 text-white rounded-xl font-black shadow-[0_4px_0_#0f766e] active:shadow-none active:translate-y-[4px] transition-all shrink-0 active:scale-95">ĐÃ HIỂU, MỞ KHÓA!</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="bg-teal-50 h-full flex flex-col relative overflow-hidden">
+                    {isCompleted && <VictoryOverlay onNext={onComplete} message="Đã mở khóa hầm ngục!" />}
+                    
+                    {/* Header */}
+                    <div className="text-center shrink-0 py-2 bg-white/30 backdrop-blur-sm z-10">
+                        <div className="inline-block px-3 py-1 rounded-full bg-white text-teal-600 text-[10px] md:text-xs font-black border-2 border-teal-100 shadow-sm uppercase tracking-wider">Nhiệm vụ: Tìm Chìa Khóa</div>
+                    </div>
+                    
+                    {/* Locks Grid (Scrollable Area) */}
+                    <div className="flex-grow overflow-y-auto px-2 md:px-6 py-2 pb-32">
+                         <div className="grid grid-cols-2 md:grid-cols-5 gap-2 md:gap-4 content-start">
+                            {locks.map((l, i) => (
+                                <div key={i} onClick={() => handleLock(l)} onTouchStart={initAudio} className={`min-h-[100px] md:aspect-square rounded-xl md:rounded-2xl bg-white border-b-4 flex flex-col items-center justify-center cursor-pointer transition-all touch-manipulation p-2 shadow-sm active:scale-95 ${matched.includes(l.key) ? 'border-green-200 bg-green-50 opacity-60 grayscale' : selectedKey ? 'border-teal-400 shadow-lg ring-2 ring-teal-200' : 'border-teal-100 active:border-teal-300 hover:border-teal-200'}`}>
+                                    <div className={`w-2 h-2 md:w-3 md:h-3 rounded-full mb-1 md:mb-2 transition-colors ${matched.includes(l.key) ? 'bg-green-400' : 'bg-red-300'}`}></div>
+                                    <Shield size={24} className={`mb-1 md:w-8 md:h-8 transition-colors ${matched.includes(l.key) ? 'text-green-300' : 'text-teal-300'}`} />
+                                    <span className="text-[10px] md:text-xs font-black text-gray-500 text-center leading-tight break-words w-full px-1">{l.lock}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Keys Area (Sticky Bottom) */}
+                    <div className="absolute bottom-0 left-0 right-0 bg-white/95 backdrop-blur-md p-2 md:p-4 rounded-t-2xl md:rounded-t-3xl border-t-2 border-teal-100 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-20 pb-safe">
+                        <div className="text-[10px] text-gray-400 uppercase font-bold text-center mb-2">Kho Chìa Khóa</div>
+                        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-3 max-h-[150px] overflow-y-auto">
+                            {keys.map((k, i) => !matched.includes(k.key) && (
+                                <button key={i} onClick={() => { initAudio(); setSelectedKey(k); playSound('correct'); }} onTouchStart={initAudio} className={`flex items-center gap-1 px-4 py-2 md:px-5 md:py-3 rounded-xl font-bold text-xs md:text-sm shadow-sm transition-all border-b-4 active:border-b-0 active:translate-y-1 touch-manipulation grow md:grow-0 justify-center whitespace-nowrap ${selectedKey === k ? 'bg-teal-500 border-teal-700 text-white shadow-md' : 'bg-white text-teal-600 border-teal-100 active:bg-teal-50'}`}>
+                                    <Key size={14} className="md:w-4 md:h-4"/> {k.key}
+                                </button>
+                            ))}
+                            {keys.every(k => matched.includes(k.key)) && <span className="text-sm font-bold text-green-600 animate-pulse py-2">Đã tìm thấy hết chìa khóa!</span>}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const Station3 = ({ onComplete, onMistake, onMirrorOutcome }) => {
+            const [idx, setIdx] = useState(0);
+            const [showRes, setShowRes] = useState(false);
+            const [isCompleted, setIsCompleted] = useState(false);
+            const [showRules, setShowRules] = useState(true);
+            const [viewState, setViewState] = useState('question');
+            const [mirrorResult, setMirrorResult] = useState(null);
+
+            const handleAns = (val) => {
+                initAudio();
+                if (viewState !== 'question') return;
+                if (val === station3Data[idx].isTrue) {
+                    playSound('correct');
+                    setViewState('result');
+                } else {
+                    playSound('wrong');
+                    onMistake("Câu trả lời chưa chính xác!");
+                }
+            };
+
+            const triggerMirror = () => {
+                setViewState('mirror');
+            };
+
+            const openMirror = () => {
+                initAudio();
+                const rand = Math.random();
+                let result;
+                
+                if (rand < 0.25) {
+                    result = { type: 'life', value: 1, text: "Chúc mừng! Bạn nhận được +1 Mạng", icon: Heart, color: "text-red-500" };
+                    playSound('win');
+                } else if (rand < 0.5) {
+                    result = { type: 'life', value: -1, text: "Chia buồn! Bạn bị trừ -1 Mạng", icon: Skull, color: "text-gray-600" };
+                    playSound('wrong');
+                } else if (rand < 0.75) {
+                    result = { type: 'score', value: 50, text: "Tuyệt vời! +50 Điểm thưởng", icon: Star, color: "text-yellow-500" };
+                    playSound('correct');
+                } else {
+                    result = { type: 'score', value: -100, text: "Ôi không! Bị trừ -100 Điểm", icon: Zap, color: "text-blue-500" };
+                    playSound('wrong');
+                }
+
+                setMirrorResult(result);
+                if (onMirrorOutcome) {
+                    onMirrorOutcome({ type: result.type, value: result.value });
+                }
+                setViewState('outcome');
+            };
+
+            const nextQuestion = () => {
+                if (idx < station3Data.length - 1) {
+                    setIdx(i => i + 1);
+                    setViewState('question');
+                    setMirrorResult(null);
+                } else {
+                    setIsCompleted(true);
+                }
+            };
+
+            if (showRules) {
+                return (
+                    <div className="bg-purple-50 h-full flex flex-col items-center justify-center p-4 md:p-6 text-center rounded-[1.5rem] md:rounded-[2rem] border-4 border-purple-100 animate-fade-in z-20 absolute inset-0">
+                        <Eye size={64} className="text-purple-400 mb-2 md:mb-4 animate-pulse shrink-0" />
+                        <h2 className="text-xl md:text-2xl font-black text-purple-600 mb-2 uppercase">Trạm 3: Đền Tiên</h2>
+                        <p className="text-sm font-bold text-purple-400 mb-4 md:mb-6 uppercase tracking-widest">Thời tiết: Sương Mù 🌫️</p>
+                        <div className="bg-white p-4 rounded-2xl shadow-sm border-2 border-purple-100 mb-6 md:mb-8 text-left max-w-md w-full">
+                            <p className="text-gray-600 mb-2"><b>Luật chơi mới:</b></p>
+                            <ul className="list-disc pl-5 text-sm text-gray-600 space-y-2">
+                                <li>Trả lời đúng câu hỏi để xua tan sương mù.</li>
+                                <li><b>ĐẶC BIỆT:</b> Sau mỗi câu đúng, bạn sẽ mở <b>Gương Thần</b>.</li>
+                                <li>Gương có thể cho bạn thêm mạng/điểm hoặc lấy đi của bạn!</li>
+                            </ul>
+                        </div>
+                        <button onClick={() => { initAudio(); setShowRules(false); }} className="w-full md:w-auto px-8 py-3 bg-purple-500 text-white rounded-xl font-black shadow-[0_4px_0_#7e22ce] active:shadow-none active:translate-y-[4px] transition-all active:scale-95">ĐÃ HIỂU, GIẢI MÃ!</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="bg-purple-50 h-full flex flex-col items-center justify-center p-4 md:p-6 relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] border-4 border-white shadow-lg">
+                    {isCompleted && <VictoryOverlay onNext={onComplete} message="Kiến thức vững vàng!" />}
+                    
+                    <div className="w-full max-w-2xl text-center space-y-4 md:space-y-6 relative z-10 flex flex-col h-full justify-center">
+                        
+                        {viewState !== 'mirror' && viewState !== 'outcome' && (
+                            <>
+                                {/* Question Card */}
+                                <div className="bg-white p-6 md:p-8 rounded-2xl md:rounded-3xl border-b-8 border-purple-100 shadow-md transform transition-all hover:scale-[1.01]">
+                                    <div className="flex justify-between items-center mb-4 border-b border-gray-100 pb-2">
+                                        <h3 className="text-purple-400 text-[10px] md:text-sm font-black uppercase tracking-widest">Câu hỏi {idx + 1}/{station3Data.length}</h3>
+                                        <div className="flex gap-1">
+                                            {station3Data.map((_, i) => (
+                                                <div key={i} className={`w-2 h-2 rounded-full ${i < idx ? 'bg-green-400' : i === idx ? 'bg-purple-400 animate-pulse' : 'bg-gray-200'}`}></div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <p className="text-lg md:text-2xl font-bold text-gray-700 leading-relaxed min-h-[80px] flex items-center justify-center">
+                                        "{station3Data[idx].statement}"
+                                    </p>
+                                </div>
+
+                                {/* Answer Buttons */}
+                                {viewState === 'question' ? (
+                                    <div className="flex flex-col md:flex-row justify-center gap-3 md:gap-6 w-full">
+                                        <button onClick={() => handleAns(true)} onTouchStart={initAudio} className="flex-1 md:flex-none py-4 md:px-16 bg-green-500 text-white rounded-2xl font-black text-xl shadow-[0_6px_0_#15803d] active:shadow-none active:translate-y-[6px] transition-all touch-manipulation hover:bg-green-600 active:scale-95">
+                                            ĐÚNG
+                                        </button>
+                                        <button onClick={() => handleAns(false)} onTouchStart={initAudio} className="flex-1 md:flex-none py-4 md:px-16 bg-red-500 text-white rounded-2xl font-black text-xl shadow-[0_6px_0_#b91c1c] active:shadow-none active:translate-y-[6px] transition-all touch-manipulation hover:bg-red-600 active:scale-95">
+                                            SAI
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="bg-green-100 p-4 md:p-6 rounded-2xl text-left shadow-inner border-2 border-green-200 animate-in slide-in-from-bottom-4 w-full">
+                                        <p className="text-green-700 font-bold mb-2 flex items-center gap-2 text-lg"><CheckCircle size={24}/> Chính xác!</p>
+                                        <p className="text-green-800 mb-6 text-sm md:text-lg">{station3Data[idx].explanation}</p>
+                                        <button onClick={triggerMirror} onTouchStart={initAudio} className="w-full py-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black text-lg rounded-xl shadow-md active:scale-95 transition-transform touch-manipulation flex items-center justify-center gap-2">
+                                            <Sparkles className="animate-spin-slow"/> MỞ GƯƠNG THẦN <Sparkles className="animate-spin-slow"/>
+                                        </button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {/* Mirror Interface */}
+                        {viewState === 'mirror' && (
+                             <div className="flex flex-col items-center justify-center animate-in zoom-in duration-300">
+                                <h3 className="text-xl font-black text-purple-600 mb-6 uppercase tracking-widest animate-pulse">Gương Thần Đang Chờ...</h3>
+                                <div className="relative group cursor-pointer" onClick={openMirror}>
+                                     <div className="absolute inset-0 bg-cyan-400 blur-2xl opacity-40 rounded-full animate-pulse group-hover:opacity-60 transition-opacity"></div>
+                                     <div className="relative w-48 h-64 md:w-60 md:h-80 bg-gradient-to-b from-sky-200 to-white rounded-[4rem] border-8 border-purple-300 shadow-2xl flex items-center justify-center overflow-hidden">
+                                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/dust.png')] opacity-30"></div>
+                                        <div className="w-full h-full bg-gradient-to-tr from-transparent via-white/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 animate-drift"></div>
+                                        <Mirror size={80} className="text-purple-400 opacity-50 group-hover:scale-110 transition-transform duration-500" />
+                                        <p className="absolute bottom-10 text-purple-500 font-bold text-sm animate-bounce">CHẠM ĐỂ MỞ</p>
+                                     </div>
+                                </div>
+                             </div>
+                        )}
+
+                        {/* Mirror Outcome */}
+                        {viewState === 'outcome' && mirrorResult && (
+                            <div className="flex flex-col items-center justify-center animate-in zoom-in duration-300">
+                                <div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-2xl border-4 border-purple-100 max-w-sm w-full text-center">
+                                    <mirrorResult.icon size={64} className={`mx-auto mb-4 ${mirrorResult.color} animate-bounce drop-shadow-md`} />
+                                    <h3 className={`text-2xl font-black mb-4 ${mirrorResult.color}`}>{mirrorResult.text}</h3>
+                                    <button onClick={nextQuestion} onTouchStart={initAudio} className="w-full py-4 bg-gray-800 text-white font-black text-lg rounded-xl shadow-lg active:scale-95 transition-transform">
+                                        TIẾP TỤC
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const Station4 = ({ onComplete, onMistake }) => {
+            const canvasRef = useRef(null);
+            const [playing, setPlaying] = useState(false);
+            const [score, setScore] = useState(0);
+            const [isCompleted, setIsCompleted] = useState(false);
+            const [showRules, setShowRules] = useState(true);
+            const TARGET_SCORE = 4; 
+
+            useEffect(() => {
+                const cvs = canvasRef.current;
+                if (!cvs) return;
+                
+                const ctx = cvs.getContext('2d');
+                if (!ctx) return;
+
+                let frame = 0;
+                let loopId;
+
+                const GRAVITY = 0.25; 
+                const JUMP = -5.0;    
+                const GAP = 200;      
+                const WALL_SPAWN_RATE = 220;
+                const ITEM_SPAWN_RATE = 120;
+
+                // Bird state
+                let bird = { x: 80, y: cvs.height/2, r: 20, v: 0, rot: 0 };
+                let items = []; 
+                let walls = []; 
+
+                const loop = () => {
+                    frame++;
+                    ctx.clearRect(0,0,cvs.width, cvs.height);
+                    
+                    // Dark Stormy Background
+                    const grad = ctx.createLinearGradient(0,0,0,cvs.height);
+                    grad.addColorStop(0, '#1e293b'); // Dark slate
+                    grad.addColorStop(1, '#0f172a'); // Darker slate
+                    ctx.fillStyle = grad; ctx.fillRect(0,0,cvs.width, cvs.height);
+                    
+                    // Lightning Effect
+                    if (frame % 300 === 0 || frame % 300 === 5 || frame % 300 === 10) {
+                         ctx.fillStyle = 'rgba(255,255,255,0.1)';
+                         ctx.fillRect(0,0,cvs.width, cvs.height);
+                    }
+                    
+                    // Distant Trees Silhouette
+                    ctx.fillStyle = '#334155'; 
+                    [0.1, 0.5, 0.9].forEach(p => {
+                        const offset = playing ? frame * 0.5 : frame * 0.2; 
+                        const tx = (cvs.width * p + offset) % cvs.width;
+                        ctx.beginPath(); ctx.moveTo(tx, cvs.height); ctx.lineTo(tx + 30, cvs.height - 80); ctx.lineTo(tx + 60, cvs.height); ctx.fill();
+                    });
+
+                    if (playing) {
+                        // --- GAME PHYSICS ---
+                        bird.v += GRAVITY; 
+                        bird.y += bird.v;
+                        
+                        // Rotation based on velocity
+                        bird.rot = Math.min(Math.PI / 4, Math.max(-0.5, (bird.v * 0.1)));
+
+                        if (bird.y + bird.r > cvs.height || bird.y - bird.r < 0) return stopGame("Rơi khỏi bản đồ!");
+
+                        if (frame % ITEM_SPAWN_RATE === 0) {
+                            const isGood = Math.random() > 0.4;
+                            items.push({ x: cvs.width, y: Math.random() * (cvs.height - 150) + 75, label: isGood ? goodItems[Math.floor(Math.random()*goodItems.length)] : badItems[Math.floor(Math.random()*badItems.length)], type: isGood ? 'good' : 'bad', collected: false });
+                        }
+                        
+                        if (frame % WALL_SPAWN_RATE === 0) {
+                            const gapY = Math.random() * (cvs.height - GAP - 60) + 30;
+                            walls.push({ x: cvs.width, w: 60, gapY, gapH: GAP });
+                        }
+
+                        // Update Walls
+                        walls.forEach(w => {
+                            w.x -= 2; 
+                            ctx.fillStyle = '#064e3b'; ctx.fillRect(w.x, 0, w.w, w.gapY); ctx.fillRect(w.x, w.gapY + w.gapH, w.w, cvs.height - (w.gapY + w.gapH));
+                            ctx.fillStyle = '#065f46'; ctx.fillRect(w.x + 10, 0, 10, w.gapY); ctx.fillRect(w.x + 10, w.gapY + w.gapH, 10, cvs.height);
+                            const hitX = w.x + 5; const hitW = w.w - 10;
+                            if (bird.x + bird.r - 4 > hitX && bird.x - bird.r + 4 < hitX + hitW) {
+                                if (bird.y - bird.r + 4 < w.gapY || bird.y + bird.r - 4 > w.gapY + w.gapH) stopGame("Va vào cây!");
+                            }
+                        });
+
+                        // Update Items
+                        items.forEach(i => {
+                            i.x -= 2;
+                            if (!i.collected) {
+                                ctx.beginPath(); ctx.arc(i.x, i.y, 22, 0, Math.PI*2);
+                                if (i.type === 'good') { ctx.fillStyle = '#fef08a'; ctx.strokeStyle='#ca8a04'; } else { ctx.fillStyle = '#fecaca'; ctx.strokeStyle='#b91c1c'; }
+                                ctx.fill(); ctx.lineWidth = 3; ctx.stroke();
+                                ctx.fillStyle = '#000'; ctx.font='bold 14px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText(i.label, i.x, i.y);
+                                const dist = Math.hypot(bird.x - i.x, bird.y - i.y);
+                                if (dist < bird.r + 22) {
+                                    i.collected = true;
+                                    if (i.type === 'good') { setScore(s => s + 1); playSound('correct'); } else stopGame(`Sai chất: ${i.label}`);
+                                }
+                            }
+                        });
+
+                        walls = walls.filter(w => w.x > -80); 
+                        items = items.filter(i => i.x > -60);
+                    } else {
+                        // --- IDLE ANIMATION ---
+                        bird.y = cvs.height/2 + Math.sin(frame * 0.05) * 15; 
+                        bird.rot = 0;
+                    }
+
+                    // --- DRAW BIRD ---
+                    ctx.save();
+                    ctx.translate(bird.x, bird.y);
+                    ctx.rotate(bird.rot);
+
+                    // Wing Animation
+                    let flapSpeed = 0.15;
+                    let flapAmp = 0.3;
+                    if (playing) {
+                        if (bird.v < 0) { flapSpeed = 0.6; flapAmp = 0.7; } 
+                        else { flapSpeed = 0.2; flapAmp = 0.3; }
+                    }
+                    const wingAngle = Math.sin(frame * flapSpeed) * flapAmp;
+
+                    // Wing
+                    ctx.save();
+                    ctx.translate(-5, 5);
+                    ctx.rotate(wingAngle);
+                    ctx.beginPath();
+                    ctx.ellipse(-10, 0, 14, 8, -0.2, 0, Math.PI * 2);
+                    ctx.fillStyle = '#fcd34d'; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = '#fff'; ctx.stroke();
+                    ctx.restore();
+
+                    // Body
+                    ctx.beginPath(); ctx.arc(0, 0, bird.r, 0, Math.PI*2);
+                    const bodyGrad = ctx.createRadialGradient(-5, -5, 5, 0, 0, bird.r);
+                    bodyGrad.addColorStop(0, '#fbbf24');
+                    bodyGrad.addColorStop(1, '#d97706');
+                    ctx.fillStyle = bodyGrad; ctx.fill(); 
+                    ctx.lineWidth = 3; ctx.strokeStyle = '#fff'; ctx.stroke();
+                    
+                    // Eye
+                    ctx.beginPath(); ctx.arc(8, -6, 5, 0, Math.PI*2); ctx.fillStyle = 'white'; ctx.fill();
+                    ctx.beginPath(); ctx.arc(10 + (playing ? bird.v * 0.2 : 0), -6, 2, 0, Math.PI*2); ctx.fillStyle = 'black'; ctx.fill();
+
+                    // Text 'S'
+                    ctx.fillStyle = 'white'; ctx.font='900 16px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText('S', -2, 4);
+
+                    ctx.restore();
+
+                    loopId = requestAnimationFrame(loop);
+                };
+
+                const stopGame = (reason) => { setPlaying(false); cancelAnimationFrame(loopId); onMistake(reason); playSound('wrong'); };
+                const jump = () => { 
+                    if (!playing) return;
+                    initAudio(); 
+                    bird.v = JUMP; 
+                    playSound('jump'); 
+                };
+                const handleInput = (e) => { if (e.type === 'keydown' && e.code !== 'Space') return; if(e.type === 'touchstart') e.preventDefault(); jump(); };
+
+                window.addEventListener('keydown', handleInput);
+                cvs.addEventListener('mousedown', handleInput);
+                cvs.addEventListener('touchstart', handleInput, { passive: false });
+                
+                loop();
+
+                return () => {
+                    window.removeEventListener('keydown', handleInput);
+                    cvs.removeEventListener('mousedown', handleInput);
+                    cvs.removeEventListener('touchstart', handleInput);
+                    cancelAnimationFrame(loopId);
+                };
+            }, [playing]); 
+
+            useEffect(() => { if (score >= TARGET_SCORE) { setPlaying(false); setTimeout(() => setIsCompleted(true), 500); } }, [score]);
+
+            if (showRules) {
+                return (
+                    <div className="glass-panel h-full flex flex-col items-center justify-center p-4 md:p-6 text-center animate-fade-in overflow-y-auto z-20 bg-slate-900/90 absolute inset-0">
+                        <TreePine size={64} className="text-green-400 mb-2 md:mb-4 animate-pulse shrink-0" />
+                        <h2 className="text-xl md:text-3xl font-black text-green-400 mb-2 uppercase shrink-0">Trạm 4: Rừng Sâu</h2>
+                        <p className="text-sm font-bold text-green-300 mb-4 md:mb-6 uppercase tracking-widest shrink-0">Bão Tố ⛈️</p>
+                        <div className="bg-white/10 backdrop-blur-sm p-4 md:p-6 rounded-2xl shadow-sm border border-white/20 mb-6 md:mb-8 text-left max-w-md w-full overflow-y-auto max-h-[40vh]">
+                            <p className="text-gray-200 mb-3 text-sm md:text-lg"><b>Luật chơi:</b></p>
+                            <ul className="list-disc pl-5 text-xs md:text-base text-gray-300 space-y-2">
+                                <li>Nhấn để bay lên.</li>
+                                <li>Tránh các cây cối cản đường.</li>
+                                <li>Thu thập <b>{TARGET_SCORE} nguyên tố</b> phản ứng với S.</li>
+                            </ul>
+                        </div>
+                        <button onClick={() => { initAudio(); setShowRules(false); }} className="px-6 py-3 md:px-8 md:py-4 bg-green-600 hover:bg-green-700 text-white rounded-xl font-black text-lg md:text-xl shadow-[0_6px_0_#14532d] active:shadow-none active:translate-y-[6px] transition-all shrink-0 active:scale-95">ĐÃ HIỂU, CẤT CÁNH!</button>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="flex flex-col items-center justify-center h-full bg-slate-800 relative overflow-hidden w-full">
+                    {isCompleted && <VictoryOverlay onNext={onComplete} message="Vượt rừng thành công!" />}
+                    
+                    {/* Canvas: Maximized space with aspect ratio preservation */}
+                    <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
+                         <canvas ref={canvasRef} width={800} height={500} className="w-full h-full object-contain cursor-pointer touch-none" />
+                    </div>
+                    
+                    {!playing && !isCompleted && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 backdrop-blur-sm">
+                            <button onClick={() => {initAudio(); setScore(0); setPlaying(true)}} onTouchStart={initAudio} className="group bg-green-500 hover:bg-green-600 text-white font-black py-3 px-8 md:py-4 md:px-12 text-lg md:text-xl rounded-2xl shadow-[0_6px_0_#15803d] active:shadow-none active:translate-y-[6px] transition-all flex items-center gap-3 active:scale-95 animate-pulse">
+                                <Wind className="group-hover:animate-bounce" /> CẤT CÁNH
+                            </button>
+                        </div>
+                    )}
+                    
+                    {/* Score HUD */}
+                    <div className={`absolute top-2 right-2 md:top-4 md:right-4 flex gap-4 text-xs md:text-lg font-bold bg-white/90 px-3 py-1.5 md:px-6 md:py-3 rounded-full shadow-sm text-gray-600 border-2 border-emerald-100 pointer-events-none transition-opacity ${playing ? 'opacity-60 md:opacity-100' : 'opacity-100'}`}>
+                        <span>🎯 Mục tiêu: {score}/{TARGET_SCORE}</span>
+                    </div>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [state, setState] = useState({ view: 'intro', lives: 3, score: 0, station: 1, unlocked: [1], name: '' });
+            const [error, setError] = useState(null);
+
+            const enterMap = () => { if (!state.name.trim()) return; initAudio(); setState(s => ({ ...s, view: 'map' })); };
+            const startStation = (id) => { setState(s => ({ ...s, station: id, view: 'playing' })); };
+            const handleWinStation = () => {
+                const nextStation = state.station + 1;
+                const newUnlocked = [...state.unlocked];
+                if (nextStation <= 4 && !newUnlocked.includes(nextStation)) newUnlocked.push(nextStation);
+                setState(s => ({ ...s, score: s.score + 100, unlocked: newUnlocked, station: nextStation <= 4 ? nextStation : s.station, view: nextStation > 4 ? 'won' : 'map' }));
+            };
+            const handleMistake = (msg) => {
+                setError(msg);
+                setState(s => {
+                    const newLives = s.lives - 1;
+                    if (newLives <= 0) {
+                        setTimeout(() => {
+                            setError(null);
+                            const prevStation = s.station === 1 ? 1 : s.station - 1;
+                            setState(prev => ({ ...prev, lives: 3, station: prevStation, view: 'map', score: s.station === 1 ? 0 : s.score }));
+                        }, 2000);
+                    } else { setTimeout(() => setError(null), 1500); }
+                    return { ...s, lives: newLives };
+                });
+            };
+
+            const handleMirrorOutcome = (outcome) => {
+                setState(s => {
+                    let newLives = s.lives;
+                    let newScore = s.score;
+                    if (outcome.type === 'life') {
+                        newLives += outcome.value;
+                    } else {
+                        newScore += outcome.value;
+                    }
+                    
+                    // Check for game over if life reduced by mirror
+                    if (newLives <= 0) {
+                         setTimeout(() => {
+                            setError("Gương thần đã lấy đi mạng cuối cùng!");
+                            setTimeout(() => {
+                                setError(null);
+                                const prevStation = s.station === 1 ? 1 : s.station - 1;
+                                setState(prev => ({ ...prev, lives: 3, station: prevStation, view: 'map', score: s.station === 1 ? 0 : s.score }));
+                            }, 2000);
+                         }, 500);
+                         return { ...s, lives: 0 }; // Show 0 lives momentarily
+                    }
+
+                    return { ...s, lives: newLives, score: newScore };
+                });
+            };
+
+            return (
+                <div className="h-dvh w-full bg-slate-100 font-sans text-gray-800 overflow-hidden relative selection:bg-yellow-200 selection:text-black flex flex-col">
+                    {/* Subtle geometric pattern background */}
+                    <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-30 pointer-events-none"></div>
+                    
+                    {/* --- HEADER (Visible on Map & Playing) --- */}
+                    {state.view !== 'intro' && state.view !== 'won' && (
+                        <div className="flex-none z-50 px-2 py-1 md:px-6 md:py-2 w-full max-w-7xl mx-auto">
+                            <div className="glass-panel p-2 rounded-xl shadow-lg flex justify-between items-center bg-white/90 backdrop-blur-md border-white/60">
+                                <div className="flex items-center gap-2 md:gap-4">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center font-black text-white text-lg shadow-md shrink-0">
+                                        {state.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <p className="hidden md:block text-[10px] text-gray-500 uppercase tracking-widest font-black">Thám Hiểm Viên</p>
+                                        <p className="font-bold text-gray-800 text-sm md:text-base truncate max-w-[120px]">{state.name}</p>
+                                    </div>
+                                </div>
+                                <div className="flex flex-col items-end gap-0 md:gap-1 shrink-0">
+                                    <div className="scale-90 origin-right">
+                                        <LifeBar lives={state.lives} />
+                                    </div>
+                                    <p className="text-[10px] text-gray-500 font-bold tracking-wider mt-0 md:mt-1 bg-white/50 px-2 rounded-md border border-white/50">
+                                        EXP: <span className="text-emerald-600 text-xs">{state.score}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* --- MAIN CONTENT AREA --- */}
+                    <div className="flex-grow w-full max-w-7xl mx-auto px-2 md:px-6 pb-2 md:pb-4 relative z-10 flex flex-col overflow-hidden">
+                        
+                        {/* 1. INTRO SCREEN - Fit to viewport */}
+                        {state.view === 'intro' && (
+                            <div className="flex flex-col items-center justify-between h-full py-4 md:py-8 overflow-hidden">
+                                {/* Top: Logo & Title */}
+                                <div className="flex flex-col items-center justify-center flex-grow shrink">
+                                     <div className="relative inline-block transform hover:scale-105 transition-transform duration-700 ease-out scale-75 md:scale-100">
+                                        <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-20 rounded-full animate-pulse"></div>
+                                        <FlaskConical size={100} className="text-yellow-500 fill-yellow-100 drop-shadow-2xl relative z-10" />
+                                        <Star size={30} className="absolute -top-4 -right-4 text-orange-400 animate-spin-slow fill-orange-200 z-20" />
+                                    </div>
+                                    
+                                    <h1 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-yellow-500 to-orange-600 my-2 md:my-4 tracking-tighter drop-shadow-sm leading-tight text-center">
+                                        SULFUR<br/>
+                                        <span className="text-xl md:text-4xl text-orange-500 font-extrabold uppercase tracking-normal block mt-1">Vượt Ngàn Chông Gai</span>
+                                    </h1>
+                                </div>
+                                
+                                {/* Middle: Description (Internal Scroll if needed) */}
+                                <div className="glass-panel p-4 md:p-8 rounded-2xl md:rounded-3xl shadow-xl border-white/50 max-w-xs md:max-w-2xl w-full mx-auto backdrop-blur-md bg-white/60 mb-4 flex-shrink min-h-0 overflow-y-auto">
+                                    <p className="text-sm md:text-lg font-medium text-gray-600 leading-relaxed text-center">
+                                        Chào mừng bạn đến với thế giới nguyên tố! Bạn đang là <b className="text-yellow-600">Sulfur</b>. 
+                                        Hãy vận dụng kiến thức hóa học để vượt qua <b className="text-orange-600">4 Trạm Chông Gai</b> và tìm đường thoát khỏi mê cung.
+                                    </p>
+                                </div>
+
+                                {/* Bottom: Input & Button */}
+                                <div className="w-full max-w-xs md:max-w-md space-y-3 md:space-y-4 glass-panel p-4 md:p-6 rounded-[2rem] shadow-2xl border-white bg-white/80 shrink-0">
+                                    <input 
+                                        value={state.name} 
+                                        onChange={e => setState(s => ({...s, name: e.target.value}))} 
+                                        placeholder="Nhập tên của bạn..." 
+                                        className="w-full bg-white border-2 border-gray-200 focus:border-yellow-400 rounded-xl px-4 py-3 text-center text-lg font-bold outline-none text-gray-700 placeholder-gray-400 transition-all focus:shadow-lg" 
+                                    />
+                                    <button 
+                                        onClick={enterMap} 
+                                        onTouchStart={initAudio} 
+                                        disabled={!state.name.trim()} 
+                                        className="group w-full py-3 md:py-4 bg-gradient-to-r from-yellow-400 to-orange-500 hover:from-yellow-500 hover:to-orange-600 text-white rounded-xl font-black text-xl shadow-[0_6px_0_#c2410c] active:shadow-none active:translate-y-[6px] transition-all disabled:opacity-50 disabled:shadow-none touch-manipulation flex items-center justify-center gap-3"
+                                    >
+                                        BẮT ĐẦU <ArrowRight className="group-hover:translate-x-1 transition-transform" strokeWidth={3} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 2. MAP SCREEN */}
+                        {state.view === 'map' && (
+                            <div className="animate-fade-in flex-grow flex flex-col justify-center items-center w-full h-full pb-2 md:pb-4 overflow-hidden">
+                                 <GameMap currentStation={state.station} completedStations={state.unlocked.length > 4 ? [1,2,3,4] : state.unlocked.slice(0, -1)} onSelectStation={startStation} />
+                            </div>
+                        )}
+
+                        {/* 3. PLAYING SCREEN (STATIONS) */}
+                        {state.view === 'playing' && (
+                            <div className="flex-grow flex flex-col animate-fade-in w-full h-full overflow-hidden">
+                                {/* Station Header - Compact */}
+                                <div className="flex justify-between items-center mb-2 px-1 shrink-0">
+                                    <h2 className="text-sm md:text-2xl font-black text-gray-700 flex items-center gap-2 drop-shadow-sm">
+                                        {state.station === 1 && <><Scroll size={18} className="text-orange-500"/> Di Tích Cổ</>}
+                                        {state.station === 2 && <><Shield size={18} className="text-teal-500"/> Hầm Ngục</>}
+                                        {state.station === 3 && <><Eye size={18} className="text-slate-500"/> Đền Tiên</>}
+                                        {state.station === 4 && <><TreePine size={18} className="text-green-700"/> Rừng Sâu</>}
+                                    </h2>
+                                    <button onClick={() => setState(s => ({...s, view: 'map'}))} onTouchStart={initAudio} className="text-[10px] md:text-xs font-bold bg-white hover:bg-gray-50 px-3 py-1.5 rounded-full shadow-md text-gray-500 hover:text-gray-800 flex gap-1 items-center transition-colors border border-gray-200 active:scale-95">
+                                        <MapIcon size={12}/> Về Bản Đồ
+                                    </button>
+                                </div>
+                                
+                                {/* Game Container - Flexible Height */}
+                                <div className="flex-grow relative bg-white rounded-xl md:rounded-[2rem] border-4 border-white shadow-xl overflow-hidden w-full mx-auto flex flex-col ring-1 ring-gray-200">
+                                    {/* Error Overlay */}
+                                    {error && (
+                                        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+                                            <div className="bg-red-50 p-6 md:p-8 rounded-2xl border-4 border-red-100 text-center w-full max-w-xs md:max-w-sm shadow-2xl transform scale-105">
+                                                <Skull size={48} className="mx-auto mb-4 text-red-400 animate-pulse" />
+                                                <h3 className="text-xl font-black text-red-500 mb-2 uppercase tracking-wide">Cẩn Thận!</h3>
+                                                <p className="text-gray-700 mb-4 font-bold text-sm md:text-base">{error}</p>
+                                                <div className="text-xs bg-red-500 text-white py-2 px-4 rounded-full inline-block font-black shadow-md uppercase tracking-wider">
+                                                    {state.lives <= 0 ? "HẾT MẠNG!" : "-1 Mạng"}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                    
+                                    <div className="h-full w-full overflow-hidden flex flex-col">
+                                        {state.station === 1 && <Station1 onComplete={handleWinStation} onMistake={handleMistake} />}
+                                        {state.station === 2 && <Station2 onComplete={handleWinStation} onMistake={handleMistake} />}
+                                        {state.station === 3 && <Station3 onComplete={handleWinStation} onMistake={handleMistake} onMirrorOutcome={handleMirrorOutcome} />}
+                                        {state.station === 4 && <Station4 onComplete={handleWinStation} onMistake={handleMistake} />}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* 4. VICTORY SCREEN (DREAMY GARDEN) - Fit to viewport */}
+                        {state.view === 'won' && (
+                            <div className="flex flex-col items-center justify-evenly h-full text-center animate-fade-in-up w-full relative z-50 overflow-hidden py-4">
+                                {/* Dreamy Garden Background */}
+                                <div className="fixed inset-0 bg-gradient-to-b from-indigo-400 via-purple-300 to-pink-200 -z-30"></div>
+                                <div className="fixed inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-60 -z-10 mix-blend-overlay"></div>
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[150vmax] h-[150vmax] bg-[conic-gradient(from_0deg,transparent_0_15deg,rgba(255,255,255,0.2)_15deg_30deg,transparent_30deg_45deg,rgba(255,255,255,0.2)_45deg_60deg,transparent_60deg_75deg,rgba(255,255,255,0.2)_75deg_90deg,transparent_90deg_105deg,rgba(255,255,255,0.2)_105deg_120deg,transparent_120deg_135deg,rgba(255,255,255,0.2)_135deg_150deg,transparent_150deg_165deg,rgba(255,255,255,0.2)_165deg_180deg,transparent_180deg_195deg,rgba(255,255,255,0.2)_195deg_210deg,transparent_210deg_225deg,rgba(255,255,255,0.2)_225deg_240deg,transparent_240deg_255deg,rgba(255,255,255,0.2)_255deg_270deg,transparent_270deg_285deg,rgba(255,255,255,0.2)_285deg_300deg,transparent_300deg_315deg,rgba(255,255,255,0.2)_315deg_330deg,transparent_330deg_345deg,rgba(255,255,255,0.2)_345deg_360deg)] animate-rotate-rays -z-20 pointer-events-none opacity-40"></div>
+                                
+                                {/* Magical Fireflies */}
+                                <div className="absolute inset-0 pointer-events-none">
+                                    {[...Array(15)].map((_, i) => (
+                                        <div 
+                                            key={i} 
+                                            className="absolute rounded-full bg-yellow-200 blur-[1px] animate-firefly"
+                                            style={{
+                                                width: Math.random() * 4 + 2 + 'px',
+                                                height: Math.random() * 4 + 2 + 'px',
+                                                top: Math.random() * 100 + '%',
+                                                left: Math.random() * 100 + '%',
+                                                animationDelay: Math.random() * 5 + 's',
+                                                animationDuration: Math.random() * 4 + 4 + 's',
+                                                '--tx': (Math.random() * 100 - 50) + 'px',
+                                                '--ty': (Math.random() * 100 - 50) + 'px',
+                                            }}
+                                        />
+                                    ))}
+                                </div>
+
+                                {/* Animated Background Elements */}
+                                <div className="absolute top-10 left-10 animate-drift opacity-60 pointer-events-none"><CloudSun size={100} className="text-white fill-pink-100" /></div>
+                                <div className="absolute top-20 right-20 animate-drift-fast opacity-50 pointer-events-none"><CloudSun size={60} className="text-white fill-purple-100" /></div>
+                                <div className="absolute inset-0 pointer-events-none">
+                                    <Sparkles size={28} className="absolute top-1/4 left-1/4 animate-twinkle opacity-90 text-yellow-300" />
+                                    <Sparkles size={36} className="absolute bottom-1/3 right-1/3 animate-twinkle opacity-70 delay-700 text-purple-300" />
+                                    <Star size={20} className="absolute top-1/5 right-1/2 animate-twinkle opacity-60 delay-1000 text-white fill-white" />
+                                     {[...Array(5)].map((_, i) => (
+                                        <Sparkles key={`sparkle-${i}`} size={16 + Math.random() * 16} className="absolute animate-twinkle opacity-60 text-white" style={{ top: Math.random() * 80 + '%', left: Math.random() * 90 + '%', animationDelay: Math.random() * 2 + 's' }} />
+                                    ))}
+                                </div>
+
+                                {/* Flowers */}
+                                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-emerald-300/60 to-transparent -z-10 pointer-events-none"></div>
+                                <div className="absolute bottom-0 inset-x-0 h-40 pointer-events-none">
+                                    <Flower size={56} className="absolute bottom-4 left-4 md:bottom-10 md:left-20 animate-sway origin-bottom text-pink-500 fill-pink-200" />
+                                    <Flower size={72} className="absolute bottom-6 right-6 md:bottom-12 md:right-32 animate-sway origin-bottom delay-500 text-purple-500 fill-purple-200" />
+                                    <Flower size={48} className="absolute bottom-2 left-1/2 animate-sway origin-bottom delay-200 text-yellow-500 fill-yellow-200" />
+                                </div>
+
+                                {/* Title Section */}
+                                <div className="flex-shrink-0 z-10 pt-4">
+                                    <h1 className="text-4xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-600 drop-shadow-sm animate-pulse">
+                                        CHIẾN THẮNG!
+                                    </h1>
+                                    <p className="text-slate-700 font-bold text-lg md:text-2xl px-4 mt-2">
+                                        Chúc mừng <span className="text-purple-600">{state.name}</span> đã giải cứu Sulfur!
+                                    </p>
+                                </div>
+
+                                {/* Main Character - Expressive Sulfur */}
+                                <div className="relative animate-jump-joy flex-shrink-0 z-10 scale-75 md:scale-100 my-2">
+                                    {/* Glow Aura */}
+                                    <div className="absolute inset-0 bg-yellow-400 blur-3xl opacity-40 rounded-full animate-pulse-hot"></div>
+                                    
+                                    <div className="relative w-32 h-32 md:w-48 md:h-48 mx-auto">
+                                        {/* Body */}
+                                        <div className="w-full h-full rounded-full bg-gradient-to-br from-yellow-300 via-amber-300 to-orange-400 shadow-[0_0_30px_rgba(251,191,36,0.6)] border-4 border-white/90 flex items-center justify-center relative z-10">
+                                            {/* Face */}
+                                            <div className="relative w-full h-full">
+                                                <div className="absolute top-[35%] left-[25%] w-3 h-3 md:w-5 md:h-5 bg-black rounded-full animate-blink"></div>
+                                                <div className="absolute top-[35%] right-[25%] w-3 h-3 md:w-5 md:h-5 bg-black rounded-full animate-blink" style={{ animationDelay: '0.1s' }}></div>
+                                                <div className="absolute top-[45%] left-[15%] w-4 h-2 md:w-6 md:h-3 bg-red-400/40 rounded-full blur-[2px] animate-pulse"></div>
+                                                <div className="absolute top-[45%] right-[15%] w-4 h-2 md:w-6 md:h-3 bg-red-400/40 rounded-full blur-[2px] animate-pulse"></div>
+                                                <div className="absolute bottom-[28%] left-[40%] w-[20%] h-[15%] border-b-4 md:border-b-6 border-black rounded-full animate-sing"></div>
+                                                <div className="absolute top-[15%] w-full text-center text-yellow-600/60 font-black text-xl md:text-3xl">S</div>
+                                            </div>
+                                        </div>
+                                        {/* Hands - Left Hand Waving */}
+                                        <div className="absolute top-[55%] -left-8 w-8 h-8 md:w-12 md:h-12 bg-yellow-300 rounded-full border-2 border-white shadow-sm animate-wave-hand origin-bottom-right z-0"></div>
+                                        {/* Right Hand */}
+                                        <div className="absolute top-[55%] -right-8 w-8 h-8 md:w-12 md:h-12 bg-yellow-300 rounded-full border-2 border-white shadow-sm animate-sway origin-left z-0" style={{ animationDelay: '-1s' }}></div>
+                                    </div>
+                                    
+                                    {/* Floating Notes */}
+                                    <div className="absolute -top-8 right-0 animate-note-1"><Music size={28} className="text-purple-600 drop-shadow-md" /></div>
+                                    <div className="absolute top-0 -left-8 animate-note-2"><Music size={34} className="text-pink-600 drop-shadow-md" /></div>
+                                    <div className="absolute -top-12 left-10 animate-note-3"><Music size={24} className="text-blue-600 drop-shadow-md" /></div>
+                                </div>
+
+                                {/* Score Card */}
+                                <div className="glass-panel bg-white/70 p-4 md:p-6 rounded-[1.5rem] md:rounded-[2rem] shadow-[0_10px_30px_rgba(0,0,0,0.1)] border-white w-full max-w-xs md:max-w-md transform hover:scale-105 transition-transform z-10 flex-shrink-0">
+                                    <p className="text-gray-500 text-[10px] md:text-xs font-black uppercase tracking-widest mb-1 md:mb-2">TỔNG ĐIỂM TÍCH LŨY</p>
+                                    <p className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-green-500 to-emerald-600 drop-shadow-sm">
+                                        {state.score}
+                                    </p>
+                                </div>
+                                
+                                {/* Action Button */}
+                                <div className="w-full max-w-xs z-10 mt-2 mb-4">
+                                    <button 
+                                        onClick={() => setState({ view: 'intro', lives: 3, score: 0, station: 1, unlocked: [1], name: '' })} 
+                                        onTouchStart={initAudio} 
+                                        className="w-full py-3 md:py-4 bg-slate-800 text-white rounded-2xl font-black text-lg md:text-xl shadow-lg active:scale-95 transition-transform flex gap-3 items-center justify-center touch-manipulation hover:bg-slate-900 hover:shadow-2xl"
+                                    >
+                                        <Footprints size={24} className="animate-bounce"/> CHƠI LẠI
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(
+            <React.StrictMode>
+                <App />
+            </React.StrictMode>
+        );
+    </script>
+</body>
+</html>
